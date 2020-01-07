@@ -1,32 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
+
 
 #define MSG_QUIT "*** Sad to see you go..."
 #define MSG_SAVE "Ok, your progress has been saved. See you later!"
 #define MSG_ERROR_MOVE "Illegal move"
+#define MAX 128
 
 void print_menu(void);
 void print_status(int, char *, int, int);
 int rand_number();
 
-int main(int argc, char **argv)
+
+int main()
 {
-    int i;
+    int j;
     int level = 0;
     char choose;
     char name[20];
     int J50 = 1, J25 = 1;
+    char frase[MAX];
+    int n_questions = 0;
+    int i = 0;
+    int t = 3;
 
-    /*Inicialização da seed*/
+    /*Inicialização da seed
     if (argc == 1)
     {
         srand(time(0));
     }
     else if (argc == 3)
     {
-        srand(argv[3]);
+        srand(argv[2]);
     }
     else if (argc == 5)
     {
@@ -35,12 +43,77 @@ int main(int argc, char **argv)
     else
     {
         return 0;
-    }
+    }*/
+    typedef struct {
+        char question[128];
+        char answers[4][64];
+        char cattegory[128];
+        char difficulty;
+    }pergunta;
     
+    pergunta * questions = NULL;
+    FILE * fp;
+    fp = fopen("Perguntas.txt", "r");
+    if (fp == NULL)
+    {
+        fprintf(stderr, "Erro ao abrir o ficheiro.txt\n");
+        return 1;
+    }
+    while(fgets(frase, MAX, fp) != NULL)
+    {
+        if (frase[0] == ';')
+            continue;
+        fgets(frase, MAX, fp);
+        fgets(frase, MAX, fp);
+        fgets(frase, MAX, fp);
+        fgets(frase, MAX, fp);
+        fgets(frase, MAX, fp);
+        fgets(frase, MAX, fp);
+        n_questions ++;
+    }
+    questions = (pergunta *) calloc(n_questions, sizeof(pergunta));
+    
+    fseek (fp, 0, SEEK_SET);
+    while(fgets(frase, MAX, fp) != NULL)
+    {
+        if (frase[0] == ';')
+            continue;
+
+        strcpy(questions[i].question, &frase[9]);
+
+        fgets(frase, MAX, fp);
+        strcpy(questions[i].answers[0], &frase[8]);
+
+        fgets(frase, MAX, fp);
+        strcpy(questions[i].answers[1], &frase[8]);
+
+        fgets(frase, MAX, fp);
+        strcpy(questions[i].answers[2], &frase[8]);
+
+        fgets(frase, MAX, fp);
+        strcpy(questions[i].answers[3], &frase[8]);
+
+        fgets(frase, MAX, fp);
+        strcpy(questions[i].cattegory, &frase[9]);
+
+        fgets(frase, MAX, fp);
+        if (strcmp(frase, "DIFFICULTY=easy\n") == 0)
+            questions[i].difficulty = 'e';
+        else if (strcmp(frase, "DIFFICULTY=medium\n") == 0)
+            questions[i].difficulty = 'm';
+        else
+        {
+            questions[i].difficulty = 'h';
+        }
+        
+        i ++;
+    }
+
+    fclose(fp);
 
     print_menu();
 
-    for (i = 1; i > 0; i++)
+    for (j = 1; j > 0; j++)
     {
         scanf(" %c", &choose);
         switch (choose)
@@ -48,6 +121,14 @@ int main(int argc, char **argv)
         case 'n':
             scanf("%s", name);
             print_status(level, name, J50, J25);
+            
+            printf("*** Question: %s", questions[t].question);
+            printf("*** OP 1: %s", questions[t].answers[0]);
+            printf("*** OP 2: %s", questions[t].answers[1]);
+            printf("*** OP 3: %s", questions[t].answers[2]);
+            printf("*** OP 4: %s", questions[t].answers[3]);
+            printf("*** Cat: %s", questions[t].cattegory);
+            printf("*** def: %c\n", questions[t].difficulty);
             break;
         case 'q':
             return 0;
@@ -74,6 +155,8 @@ int rand_number()
     p = (rand() % n) + 1;
     return p;
 }
+
+
 
 /*Imprime o menu*/
 void print_menu(void)
