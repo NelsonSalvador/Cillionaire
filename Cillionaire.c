@@ -13,11 +13,12 @@
 void print_menu(void);
 void print_status(int, char *, int, int);
 int rand_number();
+int print_GAME(int, char ,char *, char *, char *, char *, char *);
 
 
 int main()
 {
-    int j;
+    int j, a;
     int level = 0;
     char choose;
     char name[20];
@@ -25,7 +26,10 @@ int main()
     char frase[MAX];
     int n_questions = 0;
     int i = 0;
-    int t = 3;
+    int t = 0;
+    int y = 0;
+    char quest_d;
+    char resposta_1[MAX], resposta_2[MAX], resposta_3[MAX], resposta_4[MAX], Quest[MAX];
 
     /*Inicialização da seed
     if (argc == 1)
@@ -97,14 +101,7 @@ int main()
         strcpy(questions[i].cattegory, &frase[9]);
 
         fgets(frase, MAX, fp);
-        if (strcmp(frase, "DIFFICULTY=easy\n") == 0)
-            questions[i].difficulty = 'e';
-        else if (strcmp(frase, "DIFFICULTY=medium\n") == 0)
-            questions[i].difficulty = 'm';
-        else
-        {
-            questions[i].difficulty = 'h';
-        }
+        questions[i].difficulty = frase[11];
         
         i ++;
     }
@@ -113,28 +110,68 @@ int main()
 
     print_menu();
 
+    scanf(" %c", &choose);
     for (j = 1; j > 0; j++)
     {
-        scanf(" %c", &choose);
         switch (choose)
         {
         case 'n':
-            scanf("%s", name);
+            scanf(" %s", name);
             print_status(level, name, J50, J25);
-            
-            printf("*** Question: %s", questions[t].question);
-            printf("*** OP 1: %s", questions[t].answers[0]);
-            printf("*** OP 2: %s", questions[t].answers[1]);
-            printf("*** OP 3: %s", questions[t].answers[2]);
-            printf("*** OP 4: %s", questions[t].answers[3]);
-            printf("*** Cat: %s", questions[t].cattegory);
-            printf("*** def: %c\n", questions[t].difficulty);
+            while(y == 0)
+            {
+                strcpy(Quest, questions[t].question);
+                strcpy(resposta_1, questions[t].answers[0]);
+                strcpy(resposta_2, questions[t].answers[1]);
+                strcpy(resposta_3, questions[t].answers[2]);
+                strcpy(resposta_4, questions[t].answers[3]);
+                quest_d = questions[t].difficulty;
+                y = print_GAME(level, quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest);
+                a = y;
+                t ++;
+            }
+            y = 0;
+            t = 0;
+            scanf(" %c", &choose);
+            if (choose == 'A')
+            {
+                if (a == 1)
+                    printf("*** Horay!\n");
+                else
+                    printf("Wrong!\n");
+                scanf(" %c", &choose);
+            }
+            else if (choose == 'B')
+            {
+                if (a == 2)
+                    printf("*** Horay!\n");
+                else
+                    printf("Wrong!\n");
+                scanf(" %c", &choose);
+            }
+            else if (choose == 'C')
+            {
+                if (a == 3)
+                    printf("*** Horay!\n");
+                else
+                    printf("Wrong!\n");
+                scanf(" %c", &choose);
+            }
+            else if (choose == 'D')
+            {
+                if (a == 4)
+                    printf("*** Horay!\n");
+                else
+                    printf("Wrong!\n");
+                scanf(" %c", &choose);
+            }
             break;
         case 'q':
             return 0;
             break;
         case 'h':
             print_menu();
+            scanf(" %c", &choose);
             break;
         case 'r':
             break;
@@ -194,4 +231,38 @@ void print_status(int level, char *name, int J50, int J25)
     printf("*** j50:   %s                            *\n", j50);
     printf("*** j25:   %s                            *\n", j25);
     puts("********************************************");
+}
+int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char *resposta_3, char *resposta_4, char *Quest)
+{
+    int p;
+    char h[4][64];
+    char temp[64];
+
+    strncpy(h[0], resposta_1, 64);
+    strncpy(h[1], resposta_2, 64);
+    strncpy(h[2], resposta_3, 64);
+    strncpy(h[3], resposta_4, 64);
+    p = rand_number();
+
+    if (level <= 1000)
+    {
+        if (quest_d != 'e')
+        {
+            return 0;
+        } 
+        else
+        {
+            strncpy(temp, h[p - 1], 64);
+            strncpy(h[p - 1], h[0], 64);
+            strncpy(h[0], temp, 64);
+            printf("*** Question: %s", Quest);
+            printf("*** A: %s", h[0]);
+            printf("*** B: %s", h[1]);
+            printf("*** C: %s", h[2]);
+            printf("*** D: %s", h[3]);
+            return p;
+        }
+    }
+    return 0
+
 }
