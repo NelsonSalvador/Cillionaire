@@ -8,18 +8,19 @@
 #define MSG_QUIT "*** Sad to see you go..."
 #define MSG_SAVE "Ok, your progress has been saved. See you later!"
 #define MSG_ERROR_MOVE "Illegal move"
-#define MAX 128
+#define MAX 256
 
 void print_menu(void);
 void print_status(int, char *, int, int);
 int rand_number();
 int print_GAME(int, char ,char *, char *, char *, char *, char *);
+int answer_return(int, char, int);
 
 
 int main()
 {
-    int j, a;
-    int level = 0;
+    int j, a, c;
+    int level[9] = {0, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000};
     char choose;
     char name[20];
     int J50 = 1, J25 = 1;
@@ -28,6 +29,7 @@ int main()
     int i = 0;
     int t = 0;
     int y = 0;
+    int l = 0;
     char quest_d;
     char resposta_1[MAX], resposta_2[MAX], resposta_3[MAX], resposta_4[MAX], Quest[MAX];
 
@@ -49,7 +51,7 @@ int main()
         return 0;
     }*/
     typedef struct {
-        char question[128];
+        char question[256];
         char answers[4][64];
         char cattegory[128];
         char difficulty;
@@ -110,14 +112,15 @@ int main()
 
     print_menu();
 
-    scanf(" %c", &choose);
+    scanf("%c %s", &choose, name);
     for (j = 1; j > 0; j++)
     {
         switch (choose)
         {
         case 'n':
-            scanf(" %s", name);
-            print_status(level, name, J50, J25);
+            while (j > 0)
+            {
+                print_status(level[l], name, J50, J25);
             while(y == 0)
             {
                 strcpy(Quest, questions[t].question);
@@ -126,45 +129,21 @@ int main()
                 strcpy(resposta_3, questions[t].answers[2]);
                 strcpy(resposta_4, questions[t].answers[3]);
                 quest_d = questions[t].difficulty;
-                y = print_GAME(level, quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest);
+                y = print_GAME(level[l], quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest);
                 a = y;
                 t ++;
             }
+            for (c = t - 1; c < n_questions; c++)
+                questions[c] = questions[c+1];
+
             y = 0;
             t = 0;
             scanf(" %c", &choose);
-            if (choose == 'A')
-            {
-                if (a == 1)
-                    printf("*** Horay!\n");
-                else
-                    printf("Wrong!\n");
-                scanf(" %c", &choose);
+            if (choose != 'A' && choose != 'B' && choose != 'C' && choose != 'D')
+                break;
+            l = answer_return(a, choose, l);
             }
-            else if (choose == 'B')
-            {
-                if (a == 2)
-                    printf("*** Horay!\n");
-                else
-                    printf("Wrong!\n");
-                scanf(" %c", &choose);
-            }
-            else if (choose == 'C')
-            {
-                if (a == 3)
-                    printf("*** Horay!\n");
-                else
-                    printf("Wrong!\n");
-                scanf(" %c", &choose);
-            }
-            else if (choose == 'D')
-            {
-                if (a == 4)
-                    printf("*** Horay!\n");
-                else
-                    printf("Wrong!\n");
-                scanf(" %c", &choose);
-            }
+
             break;
         case 'q':
             return 0;
@@ -263,6 +242,78 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
             return p;
         }
     }
-    return 0
+}
 
+int answer_return(int a, char choose, int l)
+{
+    if (choose == 'A')
+    {
+        if (a == 1)
+        {
+            printf("*** Horay!\n");
+            return l + 1;
+        }
+        else
+        {
+            printf("Wrong!\n");
+            if (l != 0)
+                return l - 1;
+            return l;
+        }
+    }
+    else if (choose == 'B')
+    {
+        if (a == 2)
+        {
+            printf("*** Horay!\n");
+            return l + 1;
+        }
+        else
+        {
+            printf("Wrong!\n");
+            if (l != 0)
+                return l - 1;
+            return l;
+        }
+            
+    }
+    else if (choose == 'C')
+    {
+        if (a == 3)
+        {
+            printf("*** Horay!\n");
+            return l + 1;
+        }
+            
+        else
+        {
+            printf("Wrong!\n");
+            if (l != 0)
+                return l - 1;
+            return l;
+        }
+            
+    }
+    else if (choose == 'D')
+    {
+        if (a == 4)
+        {
+            printf("*** Horay!\n");
+            return l + 1;
+        }
+            
+        else
+        {
+            printf("Wrong!\n");
+            if (l != 0)
+                return l - 1;
+            return l;
+        }
+            
+    }
+    else
+    {
+        return l;
+    }
+    
 }
