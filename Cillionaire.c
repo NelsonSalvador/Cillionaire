@@ -13,19 +13,22 @@
 void print_menu(void);
 void print_status(int, char *, int, int);
 int rand_number();
-int print_GAME(int, char ,char *, char *, char *, char *, char *);
+int print_GAME(int, char ,char *, char *, char *, char *, char *, char *);
 int answer_return(int, char, int);
 
 
-int main()
+int main(int argc, char **argv)
 {
     int j, a, c;
     int level[9] = {0, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000};
     char choose;
     char name[20];
+    char fname[20];
+    char rname[20];
     int J50 = 1, J25 = 1;
     char frase[MAX];
     int n_questions = 0;
+    char open[64];
     int i = 0;
     int t = 0;
     int y = 0;
@@ -33,23 +36,50 @@ int main()
     char quest_d;
     char resposta_1[MAX], resposta_2[MAX], resposta_3[MAX], resposta_4[MAX], Quest[MAX];
 
-    /*Inicialização da seed
-    if (argc == 1)
+    /*Inicialização da seed*/
+    if (argc > 5)
     {
-        srand(time(0));
+        printf("To many arguments!\n");
+    }
+    else if (argc == 2 || argc == 4)
+    {
+        printf("Not enough arguments!\n");
     }
     else if (argc == 3)
     {
-        srand(argv[2]);
+        if (strcmp(argv[1], "-s") == 0)
+        {
+            srand(atoi(argv[2]));
+            strcpy(open, "Perguntas.ini");
+        }
+            
+        else if (strcmp(argv[1], "-f") == 0)
+        {
+            strcpy(open, argv[2]);
+            srand(time(0));
+        }
     }
     else if (argc == 5)
     {
-
+        if (strcmp(argv[1], "-s") == 0)
+        {
+            srand(atoi(argv[2]));
+            strcpy(open, argv[4]);
+        }
+            
+        else if (strcmp(argv[1], "-f") == 0)
+        {
+            strcpy(open, argv[2]);
+            srand(atoi(argv[4]));
+        }
     }
     else
     {
+        print_menu();
+        printf(">");
+        puts(MSG_QUIT);
         return 0;
-    }*/
+    }
     typedef struct {
         char question[256];
         char answers[4][64];
@@ -59,11 +89,11 @@ int main()
     
     pergunta * questions = NULL;
     FILE * fp;
-    fp = fopen("Perguntas.txt", "r");
+    fp = fopen(open, "r");
     if (fp == NULL)
     {
         fprintf(stderr, "Erro ao abrir o ficheiro.txt\n");
-        return 1;
+        return 0;
     }
     while(fgets(frase, MAX, fp) != NULL)
     {
@@ -111,13 +141,15 @@ int main()
     fclose(fp);
 
     print_menu();
-
-    scanf("%c %s", &choose, name);
+    printf(">");
+    scanf("%c", &choose);
     for (j = 1; j > 0; j++)
     {
         switch (choose)
         {
         case 'n':
+            scanf("%s", name);
+            printf("***Hi %s, let's get started!\n", name);
             while (j > 0)
             {
                 print_status(level[l], name, J50, J25);
@@ -129,16 +161,22 @@ int main()
                 strcpy(resposta_3, questions[t].answers[2]);
                 strcpy(resposta_4, questions[t].answers[3]);
                 quest_d = questions[t].difficulty;
-                y = print_GAME(level[l], quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest);
+                y = print_GAME(level[l], quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest, name);
                 a = y;
                 t ++;
             }
+
+            printf(">");
+            scanf(" %c", &choose);
             for (c = t - 1; c < n_questions; c++)
                 questions[c] = questions[c+1];
 
             y = 0;
             t = 0;
-            scanf(" %c", &choose);
+            if (choose == 'j')
+            {
+
+            }
             if (choose != 'A' && choose != 'B' && choose != 'C' && choose != 'D')
                 break;
             l = answer_return(a, choose, l);
@@ -146,18 +184,58 @@ int main()
 
             break;
         case 'q':
+            puts(MSG_QUIT);
             return 0;
             break;
         case 'h':
             print_menu();
+            printf(">");
             scanf(" %c", &choose);
             break;
         case 'r':
+            scanf("%s", rname);
+            FILE *rf;
+            rf = fopen(rname, "r");
+            if (rf == NULL)
+            {
+                fprintf(stderr, "Erro ao abrir o ficheiro.txt\n");
+                return 0;
+            }
+            fgets(frase, MAX, rf);
+            strcpy(name, &frase[0]);
+
+            ///fgets(l, MAX, rf);
+
+            ///fgets(J25, MAX, rf);
+
+            ///fgets(J50, MAX, rf);
+
+            fclose(rf);
+            printf(">");
+            scanf(" %c", &choose);
+
             break;
         case 's':
-        
+            scanf("%s", fname);
+            FILE *f;
+            f = fopen(fname, "w");
+            if (f == NULL)
+            {
+                fprintf(stderr, "Erro ao abrir o ficheiro.txt\n");
+                return 0;
+            }
+            fprintf(f, "%s\n", name);
+            fprintf(f, "%d\n", l);
+            fprintf(f, "%d\n", J25);
+            fprintf(f, "%d\n", J50);
+            fclose(f);
+            printf("Ok, your progress has been saved. See you later!\n");
+            return 0;
             break;
-        
+        case 'c':
+            printf("Creator: Nelson Salvador - 21904295\n");
+            scanf(" %c", &choose);
+            break;
         default:
             break;
         }
@@ -167,8 +245,8 @@ int main()
 int rand_number()
 {
     int p;
-    int n = abs(3) + 1;
-    p = (rand() % n) + 1;
+    int n = abs(3);
+    p = (rand() % n);
     return p;
 }
 
@@ -205,13 +283,13 @@ void print_status(int level, char *name, int J50, int J25)
     }
     
     puts("********************************************");
-    printf("*** Name:  %s                            *\n", name);
-    printf("*** Level: %d                            *\n", level);
-    printf("*** j50:   %s                            *\n", j50);
-    printf("*** j25:   %s                            *\n", j25);
+    printf("*** Name:  %s                           *\n", name);
+    printf("*** Level: %d                               *\n", level);
+    printf("*** j50:   %s                             *\n", j50);
+    printf("*** j25:   %s                             *\n", j25);
     puts("********************************************");
 }
-int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char *resposta_3, char *resposta_4, char *Quest)
+int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char *resposta_3, char *resposta_4, char *Quest, char *name)
 {
     int p;
     char h[4][64];
@@ -222,10 +300,29 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
     strncpy(h[2], resposta_3, 64);
     strncpy(h[3], resposta_4, 64);
     p = rand_number();
-
     if (level <= 1000)
     {
         if (quest_d != 'e')
+        {
+            return 0;
+        } 
+        else
+        {
+            strncpy(temp, h[p], 64);
+            strncpy(h[p], h[0], 64);
+            strncpy(h[0], temp, 64);
+            printf("*** Question: %s", Quest);
+            printf("*** A: %s", h[0]);
+            printf("*** B: %s", h[1]);
+            printf("*** C: %s", h[2]);
+            printf("*** D: %s", h[3]);
+            
+            return p + 1;
+        }
+    }
+    else if (level == 2000 || level == 5000)
+    {
+        if (quest_d != 'm')
         {
             return 0;
         } 
@@ -239,9 +336,36 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
             printf("*** B: %s", h[1]);
             printf("*** C: %s", h[2]);
             printf("*** D: %s", h[3]);
+            
             return p;
         }
     }
+    else if (level == 10000 || level == 20000 || level == 50000)
+    {
+        if (quest_d != 'h')
+        {
+            return 0;
+        } 
+        else
+        {
+            strncpy(temp, h[p - 1], 64);
+            strncpy(h[p - 1], h[0], 64);
+            strncpy(h[0], temp, 64);
+            printf("*** Question: %s", Quest);
+            printf("*** A: %s", h[0]);
+            printf("*** B: %s", h[1]);
+            printf("*** C: %s", h[2]);
+            printf("*** D: %s", h[3]);
+            
+            return p;
+        }
+    }
+    else if (level == 100000)
+    {
+        printf("This is incredible! You have won!\n");
+        printf("Congratulations %s!\n", name);
+    }
+    return 0;
 }
 
 int answer_return(int a, char choose, int l)
@@ -250,12 +374,12 @@ int answer_return(int a, char choose, int l)
     {
         if (a == 1)
         {
-            printf("*** Horay!\n");
+            printf("*** Hooray!\n");
             return l + 1;
         }
         else
         {
-            printf("Wrong!\n");
+            printf("***Wrong!\n");
             if (l != 0)
                 return l - 1;
             return l;
@@ -265,12 +389,12 @@ int answer_return(int a, char choose, int l)
     {
         if (a == 2)
         {
-            printf("*** Horay!\n");
+            printf("*** Hooray!\n");
             return l + 1;
         }
         else
         {
-            printf("Wrong!\n");
+            printf("***Wrong!\n");
             if (l != 0)
                 return l - 1;
             return l;
@@ -281,13 +405,13 @@ int answer_return(int a, char choose, int l)
     {
         if (a == 3)
         {
-            printf("*** Horay!\n");
+            printf("*** Hooray!\n");
             return l + 1;
         }
             
         else
         {
-            printf("Wrong!\n");
+            printf("***Wrong!\n");
             if (l != 0)
                 return l - 1;
             return l;
@@ -298,13 +422,13 @@ int answer_return(int a, char choose, int l)
     {
         if (a == 4)
         {
-            printf("*** Horay!\n");
+            printf("*** Hooray!\n");
             return l + 1;
         }
             
         else
         {
-            printf("Wrong!\n");
+            printf("***Wrong!\n");
             if (l != 0)
                 return l - 1;
             return l;
