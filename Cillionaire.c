@@ -13,8 +13,8 @@
 void print_menu(void);
 void print_status(int, char *, int, int);
 int rand_number();
-int print_GAME(int, char ,char *, char *, char *, char *, char *, char *);
-int answer_return(int, char, int);
+int print_GAME(int, char ,char *, char *, char *, char *, char *);
+int answer_return(int, char, int, char *);
 
 
 int main(int argc, char **argv)
@@ -33,6 +33,8 @@ int main(int argc, char **argv)
     int t = 0;
     int y = 0;
     int l = 0;
+    int ax = 0;
+    int ay = 0;
     char quest_d;
     char resposta_1[MAX], resposta_2[MAX], resposta_3[MAX], resposta_4[MAX], Quest[MAX];
 
@@ -77,9 +79,26 @@ int main(int argc, char **argv)
     {
         print_menu();
         printf(">");
-        puts(MSG_QUIT);
-        return 0;
+        scanf("%c", &choose);
+        for (j = 1; j > 0; j++)
+        {
+            switch (choose)
+            {
+            case 'q':
+                puts(MSG_QUIT);
+                return 0;
+                break;
+            case 'h':
+                print_menu();
+                printf(">");
+                scanf(" %c", &choose);
+                break;
+            default:
+                break;
+            }
+        }
     }///Abertura e leitura do ficheiro de perguntas para a memoria dinamica
+
     typedef struct {
         char question[256];
         char answers[4][64];
@@ -155,6 +174,12 @@ int main(int argc, char **argv)
             {
                 print_status(level[l], name, J50, J25);
             // Ciclo para verificação se a pergunta corresponde ao nivel certo, caso esteja quebra o ciclo
+            if (level[l] == 100000)
+            {
+                printf("***This is incredible! You have won!\n");
+                printf("***Congratulations %s!\n", name);
+                return 0;
+            }
             while(y == 0)
             {
                 strcpy(Quest, questions[t].question);
@@ -163,7 +188,7 @@ int main(int argc, char **argv)
                 strcpy(resposta_3, questions[t].answers[2]);
                 strcpy(resposta_4, questions[t].answers[3]);
                 quest_d = questions[t].difficulty;
-                y = print_GAME(level[l], quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest, name);
+                y = print_GAME(level[l], quest_d, resposta_1, resposta_2, resposta_3, resposta_4, Quest);
                 a = y;
                 t ++;
             }
@@ -183,7 +208,19 @@ int main(int argc, char **argv)
             //Quebra o Ciclo 
             if (choose != 'A' && choose != 'B' && choose != 'C' && choose != 'D')
                 break;
-            l = answer_return(a, choose, l);
+            ax = l;
+            l = answer_return(a, choose, l, resposta_1);
+            if (l <= ax)
+            {
+                ay++;
+            }
+            else
+                ay = 0;
+            if (ay == 2)
+            {
+                printf("*** Sorry, you have lost the game. Bye!\n");
+                return 0;
+            }
             }
 
             break;
@@ -234,7 +271,7 @@ int main(int argc, char **argv)
             fprintf(f, "%d\n", J25);
             fprintf(f, "%d\n", J50);
             fclose(f);
-            printf("Ok, your progress has been saved. See you later!\n");
+            printf("*** Ok, your progress has been saved. See you later!\n");
             return 0;
             break;
         case 'c':
@@ -250,8 +287,7 @@ int main(int argc, char **argv)
 int rand_number()
 {
     int p;
-    int n = abs(3);
-    p = (rand() % n);
+    p = (rand() % 4);
     return p;
 }
 
@@ -294,17 +330,15 @@ void print_status(int level, char *name, int J50, int J25)
     printf("*** j25:   %s                             *\n", j25);
     puts("********************************************");
 }
-int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char *resposta_3, char *resposta_4, char *Quest, char *name)
+int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char *resposta_3, char *resposta_4, char *Quest)
 {
     int p;
     char h[4][64];
-    char temp[64];
 
     strncpy(h[0], resposta_1, 64);
     strncpy(h[1], resposta_2, 64);
     strncpy(h[2], resposta_3, 64);
     strncpy(h[3], resposta_4, 64);
-    p = rand_number();
     //imprime as perguntas, baralhadas, conforme o nivel do jogado 
     if (level <= 1000)
     {
@@ -314,14 +348,36 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
         } 
         else
         {
-            strncpy(temp, h[p], 64);
-            strncpy(h[p], h[0], 64);
-            strncpy(h[0], temp, 64);
+            p = rand_number();
             printf("*** Question: %s", Quest);
-            printf("*** A: %s", h[0]);
-            printf("*** B: %s", h[1]);
-            printf("*** C: %s", h[2]);
-            printf("*** D: %s", h[3]);
+            if (p == 0)
+            {
+                printf("*** A: %s", h[0]);
+                printf("*** B: %s", h[1]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 1)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[0]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 2)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[0]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 3)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[3]);
+                printf("*** D: %s", h[0]);
+            }
             
             return p + 1;
         }
@@ -334,15 +390,37 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
         } 
         else
         {
-            strncpy(temp, h[p - 1], 64);
-            strncpy(h[p - 1], h[0], 64);
-            strncpy(h[0], temp, 64);
             printf("*** Question: %s", Quest);
-            printf("*** A: %s", h[0]);
-            printf("*** B: %s", h[1]);
-            printf("*** C: %s", h[2]);
-            printf("*** D: %s", h[3]);
-            
+            p = rand_number();
+
+            if (p == 0)
+            {
+                printf("*** A: %s", h[0]);
+                printf("*** B: %s", h[1]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 1)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[0]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 2)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[0]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 3)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[3]);
+                printf("*** D: %s", h[0]);
+            }
             return p + 1;
         }
     }
@@ -354,29 +432,54 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
         } 
         else
         {
-            strncpy(temp, h[p - 1], 64);
-            strncpy(h[p - 1], h[0], 64);
-            strncpy(h[0], temp, 64);
             printf("*** Question: %s", Quest);
-            printf("*** A: %s", h[0]);
-            printf("*** B: %s", h[1]);
-            printf("*** C: %s", h[2]);
-            printf("*** D: %s", h[3]);
-            
+            p = rand_number();
+
+            if (p == 0)
+            {
+                printf("*** A: %s", h[0]);
+                printf("*** B: %s", h[1]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 1)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[0]);
+                printf("*** C: %s", h[2]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 2)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[0]);
+                printf("*** D: %s", h[3]);
+            }
+            else if (p == 3)
+            {
+                printf("*** A: %s", h[1]);
+                printf("*** B: %s", h[2]);
+                printf("*** C: %s", h[3]);
+                printf("*** D: %s", h[0]);
+            }
             return p + 1;
         }
-    }
-    else if (level == 100000)
-    {
-        printf("This is incredible! You have won!\n");
-        printf("Congratulations %s!\n", name);
-        return 0;
     }
     return 0;
 }
 // Verifica se a resposta do jogado está correta
-int answer_return(int a, char choose, int l)
+int answer_return(int a, char choose, int l, char *resposta)
 {
+    char r;
+    if (a == 1)
+        r = 'A';
+    else if (a == 2)
+        r = 'B';
+    else if (a == 3)
+        r = 'C';
+    else if (a == 4)
+        r = 'D';
     if (choose == 'A')
     {
         if (a == 1)
@@ -386,7 +489,8 @@ int answer_return(int a, char choose, int l)
         }
         else
         {
-            printf("***Wrong!\n");
+            printf("***Woops... That's not correct.\n");
+            printf("***The correct answer was %c: %s",r ,resposta);
             if (l != 0)
                 return l - 1;
             return l;
@@ -401,7 +505,8 @@ int answer_return(int a, char choose, int l)
         }
         else
         {
-            printf("***Wrong!\n");
+            printf("***Woops... That's not correct.\n");
+            printf("***The correct answer was %c: %s",r ,resposta);
             if (l != 0)
                 return l - 1;
             return l;
@@ -418,7 +523,8 @@ int answer_return(int a, char choose, int l)
             
         else
         {
-            printf("***Wrong!\n");
+            printf("***Woops... That's not correct.\n");
+            printf("***The correct answer was %c: %s",r ,resposta);
             if (l != 0)
                 return l - 1;
             return l;
@@ -435,7 +541,8 @@ int answer_return(int a, char choose, int l)
             
         else
         {
-            printf("***Wrong!\n");
+            printf("***Woops... That's not correct.\n");
+            printf("***The correct answer was %c: %s",r ,resposta);
             if (l != 0)
                 return l - 1;
             return l;
