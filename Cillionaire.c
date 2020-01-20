@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         printf(">");
         puts(MSG_QUIT);
         return 0;
-    }
+    }///Abertura e leitura do ficheiro de perguntas para a memoria dinamica
     typedef struct {
         char question[256];
         char answers[4][64];
@@ -143,6 +143,7 @@ int main(int argc, char **argv)
     print_menu();
     printf(">");
     scanf("%c", &choose);
+    ///ciclo infinito para as opcões do menu
     for (j = 1; j > 0; j++)
     {
         switch (choose)
@@ -153,6 +154,7 @@ int main(int argc, char **argv)
             while (j > 0)
             {
                 print_status(level[l], name, J50, J25);
+            // Ciclo para verificação se a pergunta corresponde ao nivel certo, caso esteja quebra o ciclo
             while(y == 0)
             {
                 strcpy(Quest, questions[t].question);
@@ -168,6 +170,7 @@ int main(int argc, char **argv)
 
             printf(">");
             scanf(" %c", &choose);
+            //Elemina a pergunta da memória dinamica
             for (c = t - 1; c < n_questions; c++)
                 questions[c] = questions[c+1];
 
@@ -177,6 +180,7 @@ int main(int argc, char **argv)
             {
 
             }
+            //Quebra o Ciclo 
             if (choose != 'A' && choose != 'B' && choose != 'C' && choose != 'D')
                 break;
             l = answer_return(a, choose, l);
@@ -216,6 +220,7 @@ int main(int argc, char **argv)
 
             break;
         case 's':
+        //cria um ficheiro com e guarda a informação la 
             scanf("%s", fname);
             FILE *f;
             f = fopen(fname, "w");
@@ -241,7 +246,7 @@ int main(int argc, char **argv)
         }
     }
 }
-
+// gera um numero aleatório entre 0 e 3
 int rand_number()
 {
     int p;
@@ -300,6 +305,7 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
     strncpy(h[2], resposta_3, 64);
     strncpy(h[3], resposta_4, 64);
     p = rand_number();
+    //imprime as perguntas, baralhadas, conforme o nivel do jogado 
     if (level <= 1000)
     {
         if (quest_d != 'e')
@@ -337,7 +343,7 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
             printf("*** C: %s", h[2]);
             printf("*** D: %s", h[3]);
             
-            return p;
+            return p + 1;
         }
     }
     else if (level == 10000 || level == 20000 || level == 50000)
@@ -357,17 +363,18 @@ int print_GAME(int level, char quest_d, char *resposta_1, char *resposta_2, char
             printf("*** C: %s", h[2]);
             printf("*** D: %s", h[3]);
             
-            return p;
+            return p + 1;
         }
     }
     else if (level == 100000)
     {
         printf("This is incredible! You have won!\n");
         printf("Congratulations %s!\n", name);
+        return 0;
     }
     return 0;
 }
-
+// Verifica se a resposta do jogado está correta
 int answer_return(int a, char choose, int l)
 {
     if (choose == 'A')
